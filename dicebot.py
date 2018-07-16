@@ -156,12 +156,12 @@ def to_number(arg):
     return arg
 
 
-def rpn_evaluate(output_queue: List[str]) -> Tuple[List[str], float]:
+def rpn_evaluate(output_queue: List[str]) -> Tuple[List[List[int]], float]:
     eval_stack = []
     details = []
     for token in output_queue:
         if is_number(token):
-            eval_stack.append(token)
+            eval_stack.append(to_number(token))
         elif token[0].isalpha():
             if token[0].lower() == "d":
                 arg2 = eval_stack.pop()
