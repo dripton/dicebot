@@ -17,9 +17,9 @@ def test_empty():
 
 def test_nds():
     result = dicebot.roll_inner("3d1")
-    assert result == 3
+    assert result == ([[1, 1, 1]], 3)
     result = dicebot.roll_inner("3D1")
-    assert result == 3
+    assert result == ([[1, 1, 1]], 3)
 
 
 def test_bogus_function():
@@ -29,7 +29,7 @@ def test_bogus_function():
 
 def test_0ds():
     result = dicebot.roll_inner("0d1")
-    assert result == 0
+    assert result == ([[]], 0)
 
 
 def test_gen_tokens():
@@ -45,51 +45,51 @@ def test_gen_tokens():
 
 def test_addition():
     result = dicebot.roll_inner("1 + 1")
-    assert result == 2
+    assert result[1] == 2
     result = dicebot.roll_inner("1 + 1 + 2")
-    assert result == 4
+    assert result[1] == 4
 
 
 def test_subtraction():
     result = dicebot.roll_inner("1 - 1")
-    assert result == 0
+    assert result[1] == 0
 
 
 def test_multiplication():
     result = dicebot.roll_inner("2 * 3")
-    assert result == 6
+    assert result[1] == 6
 
 
 def test_division():
     result = dicebot.roll_inner("8 / 4")
-    assert result == 2
+    assert result[1] == 2
     result = dicebot.roll_inner("10 / 4")
-    assert result == 2.5
+    assert result[1] == 2.5
 
 
 def test_adding_dice():
     result = dicebot.roll_inner("1d1 + 1d1")
-    assert result == 2
+    assert result == ([[1], [1]], 2)
 
 
 def test_parenthesis():
     result = dicebot.roll_inner("(1 + 2) * 3")
-    assert result == 9
+    assert result == ([], 9)
 
 
 def test_dice_plus_operators():
     result = dicebot.roll_inner("1d1 + 100")
-    assert result == 101
+    assert result[1] == 101
     result = dicebot.roll_inner("1d1 - 100")
-    assert result == -99
+    assert result[1] == -99
     result = dicebot.roll_inner("1d1 * 100")
-    assert result == 100
+    assert result[1] == 100
     result = dicebot.roll_inner("1d1 / 100")
-    assert result == 0.01
+    assert result[1] == 0.01
     result = dicebot.roll_inner("100d1 / 10")
-    assert result == 10
+    assert result[1] == 10
     result = dicebot.roll_inner("100d1 / 10")
-    assert result == 10
+    assert result[1] == 10
 
 
 def test_add_missing_numbers():

@@ -19,14 +19,9 @@ async def on_ready():
     print("------")
 
 
-def d(dice: int, sides: int) -> Tuple[str, List[int], int]:
+def d(dice: int, sides: int) -> List[int]:
     rolls = [random.randint(1, sides) for r in range(dice)]
-    total = sum(rolls)
-    if rolls:
-        result = " + ".join(map(str, rolls)) + " = %d" % total
-    else:
-        result = ""
-    return (result, rolls, total)
+    return rolls
 
 
 def is_number(st: str) -> bool:
@@ -161,21 +156,21 @@ def to_number(arg):
     return arg
 
 
-def rpn_evaluate(output_queue: List[str]) -> float:
+def rpn_evaluate(output_queue: List[str]) -> Tuple[List[str], float]:
     eval_stack = []
+    details = []
     for token in output_queue:
         if is_number(token):
             eval_stack.append(token)
         elif token[0].isalpha():
-            # TODO 1-arg vs. 2-arg vs. "d" function  d vs. d6 vs. 3d6 or 4d
             if token[0].lower() == "d":
                 arg2 = eval_stack.pop()
                 sides = int(arg2)
                 arg1 = eval_stack.pop()
                 dice = int(arg1)
-                result, rolls, total = d(dice, sides)
-                # TODO show result
-                eval_stack.append(total)
+                rolls = d(dice, sides)
+                details.append(rolls)
+                eval_stack.append(sum(rolls))
             else:
                 raise Exception("bogus function")
         elif token in operators:
@@ -189,12 +184,11 @@ def rpn_evaluate(output_queue: List[str]) -> float:
                 total = arg1 * arg2
             elif token == "/":
                 total = arg1 / arg2
-            # TODO bogus operator
             eval_stack.append(total)
-    return eval_stack[0]
+    return (details, eval_stack[0])
 
 
-def roll_inner(cmd: str) -> float:
+def roll_inner(cmd: str) -> Tuple[List[List[int]], float]:
     tokens = list(gen_tokens(cmd))
     tokens = strip_whitespace(tokens)
     tokens = add_missing_numbers(tokens)
@@ -205,13 +199,17 @@ def roll_inner(cmd: str) -> float:
 
 @bot.command()
 async def roll(cmd: str):
-    """Rolls dice in roll20 format."""
+    """Rolls dice in roll20 format.  Example: /roll 3d6+2"""
     print("roll(%s)" % cmd)
     try:
-        result = roll_inner(cmd)
+        roll_lists, total = roll_inner(cmd)
     except Exception:
         await bot.say("invalid format")
         return
+    roll_strs = []
+    for roll_list in roll_lists:
+        roll_strs.append("+".join(map(str, roll_list)))
+    result = ",".join(roll_strs) + " = " + str(total)
     print("result", result)
     await bot.say(result)
 
