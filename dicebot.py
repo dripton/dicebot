@@ -87,6 +87,29 @@ def gen_tokens(cmd: str):
         yield partial
 
 
+def strip_whitespace(tokens: List[str]) -> List[str]:
+    return [token for token in tokens if not token.isspace()]
+
+
+def add_missing_numbers(tokens: List[str]) -> List[str]:
+    """Add extra numbers before and after "d" tokens, if missing.
+
+    If no number before "d", add a "1"
+    If no number after "d", add a "6"
+    """
+    result = []
+    for ii, token in enumerate(tokens):
+        if token == "d" or token == "D":
+            if ii == 0 or not is_number(tokens[ii - 1]):
+                result.append("1")
+            result.append("d")
+            if ii == len(tokens) - 1 or not is_number(tokens[ii + 1]):
+                result.append("6")
+        else:
+            result.append(token)
+    return result
+
+
 operators = {
     "*": 3,
     "/": 3,
@@ -173,6 +196,8 @@ def rpn_evaluate(output_queue: List[str]) -> float:
 
 def roll_inner(cmd: str) -> float:
     tokens = list(gen_tokens(cmd))
+    tokens = strip_whitespace(tokens)
+    tokens = add_missing_numbers(tokens)
     output_queue = to_postfix(tokens)
     result = rpn_evaluate(output_queue)
     return result

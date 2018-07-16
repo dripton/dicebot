@@ -90,3 +90,10 @@ def test_dice_plus_operators():
     assert result == 10
     result = dicebot.roll_inner("100d1 / 10")
     assert result == 10
+
+
+def test_add_missing_numbers():
+    assert dicebot.add_missing_numbers(["d"]) == ["1", "d", "6"]
+    assert dicebot.add_missing_numbers(["2", "d"]) == ["2", "d", "6"]
+    assert dicebot.add_missing_numbers(["d", "20"]) == ["1", "d", "20"]
+    assert dicebot.add_missing_numbers(["5", "d", "20"]) == ["5", "d", "20"]
