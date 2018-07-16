@@ -29,6 +29,15 @@ def d(dice: int, sides: int) -> Tuple[str, List[int], int]:
     return (result, rolls, total)
 
 
+def is_number(st: str) -> bool:
+    if not st:
+        return False
+    for ch in st:
+        if ch != "." and not ch.isdigit():
+            return False
+    return True
+
+
 def gen_tokens(cmd: str):
     """Yield tokens."""
     in_whitespace = False
@@ -46,7 +55,7 @@ def gen_tokens(cmd: str):
                 in_number = False
                 in_alpha = False
                 partial = ch
-        elif ch.isdigit() or ch == ".":
+        elif is_number(ch):
             if in_number:
                 partial += ch
             else:
@@ -93,7 +102,7 @@ def to_postfix(tokens: List[str]) -> List[str]:
     for token in tokens:
         if token[0].isspace():
             pass
-        elif token[0].isdigit() or token[0] == ".":
+        elif is_number(token):
             output_queue.append(token)
         elif token[0].isalpha():
             operator_stack.append(token)
@@ -132,7 +141,7 @@ def to_number(arg):
 def rpn_evaluate(output_queue: List[str]) -> float:
     eval_stack = []
     for token in output_queue:
-        if token[0].isdigit() or token[0] == ".":
+        if is_number(token):
             eval_stack.append(token)
         elif token[0].isalpha():
             # TODO 1-arg vs. 2-arg vs. "d" function  d vs. d6 vs. 3d6 or 4d
